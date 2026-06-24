@@ -14,13 +14,7 @@ jwt = JWTManager()
 
 def create_app():
     app = Flask(__name__)
-    CORS(app, resources={
-        r"/api_v1/*": {
-            "origins": ["http://localhost:5173"],
-            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-            "allow_headers": ["Content-Type", "Authorization"]
-        }
-    }, supports_credentials=True)
+    
     app.url_map.strict_slashes = False
     env = os.getenv('FLASK_ENV', 'development')
     app.config.from_object(config[env])
@@ -39,5 +33,12 @@ def create_app():
     db.init_app(app)
     migrate.init_app(app=app, db=db)
     jwt.init_app(app)
+    CORS(app, resources={
+    r"/api_v1/.*": { 
+        "origins": ["http://localhost:5173"],
+        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization"]
+    }
+    }, supports_credentials=True)
     return app
     

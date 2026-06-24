@@ -51,7 +51,8 @@ class AuthController:
             user = db.session.execute(db.select(User).filter_by(nombre=nombre)).scalar_one_or_none()
             if user and user.validate_password(password):
                 access_token = create_access_token(identity=str(user.id), additional_claims={'rol': user.rol.nombre if user.rol else None})
-                return jsonify({'access_token': access_token, 'rol': user.rol.nombre if user.rol else None, 'nombre': user.nombre}), 200
+                return jsonify({'access_token': access_token,
+                                'rol': user.rol.nombre if user.rol else None, 'nombre': user.nombre, 'authenticated':True}), 200
             return jsonify({'message': "Credenciales inválidas"}), 401
         return jsonify ({'message': error}), 422
     
