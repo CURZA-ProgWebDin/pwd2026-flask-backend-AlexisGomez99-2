@@ -11,7 +11,7 @@ class AuthController:
         nombre:str | None = request.get('nombre')
         email:str | None = request.get('email')
         password:str | None = request.get('password')
-        
+        rol_user = request.get('rol_id')
         error :str | None = None
         if nombre is None:
             error = 'El nombre es requerido'
@@ -19,12 +19,13 @@ class AuthController:
             error = 'El email es requerido'
         if password is None:
             error = 'La contraseña es requerida'
+        if rol_user is None:
+            error = 'El rol es requerido'
             
         if error is None:
             try:
-                rol_user = db.session.execute(db.select(Rol).filter_by(nombre='user')).scalar_one_or_none()
                 if rol_user and nombre and password and email is not None:
-                    user = User(nombre=nombre, email=email, rol_id=rol_user.id, password=password)    
+                    user = User(nombre=nombre, email=email, rol_id=rol_user, password=password)    
                     user.generate_password(password)
                     db.session.add(user)
                     db.session.commit()
