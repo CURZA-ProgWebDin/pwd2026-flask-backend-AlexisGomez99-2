@@ -1,11 +1,12 @@
 from dotenv import load_dotenv
-from flask import Flask
 from flask_cors import CORS
 from app.models import db
 from app.config import config
 from app.routes import api_v1
 from flask_migrate import Migrate
-from flask_jwt_extended import JWTManager
+from flask_jwt_extended import JWTManager, create_access_token, get_jwt, get_jwt_identity
+from flask import Flask, jsonify
+from datetime import datetime,  timezone
 
 load_dotenv(override = True)
 import os
@@ -33,6 +34,33 @@ def create_app():
     db.init_app(app)
     migrate.init_app(app=app, db=db)
     jwt.init_app(app)
+    
+    @app.after_request
+    def refresh_token(response):
+        try:
+            token_data = get_jwt()
+            if not token_data:
+                return response
+
+            exp = token_data['exp']
+            now = datetime.now(timezone.utc).timestamp()  
+
+            if exp - now < 500:
+                new_token = create_access_token(identity=get_jwt_identity())
+                data = response.get_json()
+                if isinstance(data, dict):
+                    data['refresh_token'] = new_token
+                elif isinstance(data, list):
+                    data = {"data": data, "refresh_token": new_token}
+                else:
+                    return response
+
+                response.set_data(jsonify(data).data)
+            return response
+        except (RuntimeError, KeyError):
+            return response
+        
+    
     CORS(app, resources={
     r"/api_v1/.*": { 
         "origins": ["http://localhost:5173"],

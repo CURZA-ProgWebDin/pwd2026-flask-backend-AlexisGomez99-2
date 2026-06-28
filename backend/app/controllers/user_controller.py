@@ -50,11 +50,14 @@ class UserController (Controller):
     def update(request, id)->tuple[Response, int]:
         nombre= request.get('nombre')
         email= request.get('email')
+        rol_id = request.get('rol_id')
         error :str | None = None
         if nombre is None:
             error = 'El nombre es requerido'
         if email is None:
             error = 'El email es requerido'
+        if rol_id is None:
+            error = 'El rol es requerido'
             
         if error is None:
             usuario = db.session.get(User, id)
@@ -62,6 +65,7 @@ class UserController (Controller):
                 try:
                     usuario.nombre = nombre
                     usuario.email = email
+                    usuario.rol_id = rol_id
                     usuario.updated_at = datetime.now()
                     db.session.commit()
                     return jsonify({'message':'usuario modificado con exito'}), 200
