@@ -18,6 +18,7 @@ class MovimientoStock(BaseModel):
             'tipo': self.tipo,
             'cantidad': self.cantidad,
             'fecha': self.created_at.isoformat(),
+            'motivo': self.motivo,
             'activo': self.activo
         }
         if incluye_user:
